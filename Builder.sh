@@ -34,7 +34,7 @@ fi
 
 if [ -d "${build_path}" ]; then
     cd "${build_path}"
-	cmake -G "$generator" -DCMAKE_BUILD_TYPE="$build_type" ../ex_1
+	cmake -G "$generator" -DCMAKE_BUILD_TYPE="$build_type" ../ex_01
 else
     echo "Build directory cannot be created"
 fi
