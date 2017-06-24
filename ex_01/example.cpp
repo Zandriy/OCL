@@ -76,38 +76,6 @@ void printCL_PlatformInfo(const cl::Platform& platform)
         std::cout << "EXTENSIONS: " << info << "\n";
     std::cout << "=====================================\n";
 }
-
-cl::Platform getCL_Platform()
-{
-	std::vector<cl::Platform> platforms;
-	cl::Platform::get(&platforms);
-	size_t cur_platform = platforms.size();
-
-	if (!cur_platform)
-	{
-		throw std::domain_error("OpenCL platforms aren't found.");
-	}
-
-	for (size_t p = 0; p < platforms.size(); ++p)
-    {
-        printCL_PlatformInfo(platforms.at(p));
-        std::string ver;
-        if (platforms.at(p).getInfo(CL_PLATFORM_VERSION, &ver) == CL_SUCCESS)
-        {
-            if (getCL_ver(ver) == v120 || (getCL_ver(ver) >= v120 && cur_platform == platforms.size()))
-            {
-                cur_platform = p;
-            }
-        }
-	}
-
-	if (cur_platform == platforms.size())
-	{
-		throw std::domain_error("OpenCL 1.2 platform is not found.");
-	}
-
-	return std::move(platforms.at(cur_platform));
-}
     
 void printCL_DeviceInfo(const cl::Device& dev)
 {
@@ -129,28 +97,27 @@ void printCL_DeviceInfo(const cl::Device& dev)
             std::cout << "DEFAULT";
             break;
     }
-    std::cout << " | VENDOR_ID: " << dev.getInfo<CL_DEVICE_VENDOR_ID>();
-    std::cout << " | NAME: " << dev.getInfo<CL_DEVICE_NAME>();
-    std::cout << " | VENDOR: " << dev.getInfo<CL_DEVICE_VENDOR>();
-    std::cout << " | DRIVER_VERSION: " << dev.getInfo<CL_DRIVER_VERSION>();
-    std::cout << " | PROFILE: " << dev.getInfo<CL_DEVICE_PROFILE>();
-    std::cout << " | VERSION: " << dev.getInfo<CL_DEVICE_VERSION>();
-    std::cout << " | PLATFORM: " << dev.getInfo<CL_DEVICE_PLATFORM>();
-    std::cout << " | AVAILABLE: " << (dev.getInfo<CL_DEVICE_AVAILABLE>() ? "YES" : "NO");
-    std::cout << " | COMPILER_AVAILABLE: " << (dev.getInfo<CL_DEVICE_COMPILER_AVAILABLE>() ? "YES" : "NO");
-    std::cout << " | OPENCL_C_VERSION: " << dev.getInfo<CL_DEVICE_OPENCL_C_VERSION>();
-    std::cout << " | PARENT_DEVICE: ";
+    std::cout << " || VENDOR_ID: " << dev.getInfo<CL_DEVICE_VENDOR_ID>();
+    std::cout << " || NAME: " << dev.getInfo<CL_DEVICE_NAME>();
+    std::cout << " || VENDOR: " << dev.getInfo<CL_DEVICE_VENDOR>();
+    std::cout << " || DRIVER_VERSION: " << dev.getInfo<CL_DRIVER_VERSION>();
+    std::cout << " || PROFILE: " << dev.getInfo<CL_DEVICE_PROFILE>();
+    std::cout << " || VERSION: " << dev.getInfo<CL_DEVICE_VERSION>();
+    std::cout << " || PLATFORM: " << dev.getInfo<CL_DEVICE_PLATFORM>();
+    std::cout << " || AVAILABLE: " << (dev.getInfo<CL_DEVICE_AVAILABLE>() ? "YES" : "NO");
+    std::cout << " || COMPILER_AVAILABLE: " << (dev.getInfo<CL_DEVICE_COMPILER_AVAILABLE>() ? "YES" : "NO");
+    std::cout << " || OPENCL_C_VERSION: " << dev.getInfo<CL_DEVICE_OPENCL_C_VERSION>();
+    std::cout << " || PARENT_DEVICE: ";
     auto parent = dev.getInfo<CL_DEVICE_PARENT_DEVICE>();
-    auto g = parent.get();
- //   std::cout << (parent.get() ? parent.getInfo<CL_DEVICE_NAME>() : "NULL");
-    std::cout << " | ADDRESS_BITS: " << dev.getInfo<CL_DEVICE_ADDRESS_BITS>();
-    std::cout << " | MEM_BASE_ADDR_ALIGN: " << dev.getInfo<CL_DEVICE_MEM_BASE_ADDR_ALIGN>();
-    std::cout << " | MIN_DATA_TYPE_ALIGN_SIZE: " << dev.getInfo<CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE>();
-    std::cout << " | CONSTANT_BUFFER_SIZE: " << dev.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();
-    std::cout << " | ERROR_CORRECTION_SUPPORT: " << (dev.getInfo<CL_DEVICE_ERROR_CORRECTION_SUPPORT>() ? "YES" : "NO");
-    std::cout << " | PROFILING_TIMER_RESOLUTION: " << dev.getInfo<CL_DEVICE_PROFILING_TIMER_RESOLUTION>();
-    std::cout << " | ENDIAN_LITTLE: " << (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "YES" : "NO");
-    std::cout << " | EXECUTION_CAPABILITIES: ";
+	std::cout << (parent.get() ? parent.get() : 0);
+    std::cout << " || ADDRESS_BITS: " << dev.getInfo<CL_DEVICE_ADDRESS_BITS>();
+    std::cout << " || MEM_BASE_ADDR_ALIGN: " << dev.getInfo<CL_DEVICE_MEM_BASE_ADDR_ALIGN>();
+    std::cout << " || MIN_DATA_TYPE_ALIGN_SIZE: " << dev.getInfo<CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE>();
+    std::cout << " || CONSTANT_BUFFER_SIZE: " << dev.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>();
+    std::cout << " || ERROR_CORRECTION_SUPPORT: " << (dev.getInfo<CL_DEVICE_ERROR_CORRECTION_SUPPORT>() ? "YES" : "NO");
+    std::cout << " || PROFILING_TIMER_RESOLUTION: " << dev.getInfo<CL_DEVICE_PROFILING_TIMER_RESOLUTION>();
+    std::cout << " || ENDIAN_LITTLE: " << (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "YES" : "NO");
+    std::cout << " || EXECUTION_CAPABILITIES: ";
     switch(dev.getInfo<CL_DEVICE_EXECUTION_CAPABILITIES>())
     {
         case CL_EXEC_KERNEL:
@@ -161,7 +128,7 @@ void printCL_DeviceInfo(const cl::Device& dev)
             break;
             
     }
-    std::cout << " | QUEUE_PROPERTIES: ";
+    std::cout << " || QUEUE_PROPERTIES: ";
     switch(dev.getInfo<CL_DEVICE_QUEUE_PROPERTIES>())
     {
         case CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE:
@@ -171,35 +138,35 @@ void printCL_DeviceInfo(const cl::Device& dev)
             std::cout << "PROFILING_ENABLE";
             break;
     }
-    std::cout << " | HOST_UNIFIED_MEMORY: " << (dev.getInfo<CL_DEVICE_HOST_UNIFIED_MEMORY>() ? "YES" : "NO");
-    std::cout << " | BUILT_IN_KERNELS: " << dev.getInfo<CL_DEVICE_BUILT_IN_KERNELS>();
-    std::cout << " | REFERENCE_COUNT: " << dev.getInfo<CL_DEVICE_REFERENCE_COUNT>();
-    //std::cout << " | LINKER_AVAILABLE: " << (dev.getInfo<CL_DEVICE_LINKER_AVAILABLE>() ? "YES" : "NO");
-    //std::cout << " | PRINTF_BUFFER_SIZE: " << dev.getInfo<CL_DEVICE_PRINTF_BUFFER_SIZE>();
+    std::cout << " || HOST_UNIFIED_MEMORY: " << (dev.getInfo<CL_DEVICE_HOST_UNIFIED_MEMORY>() ? "YES" : "NO");
+    std::cout << " || BUILT_IN_KERNELS: " << dev.getInfo<CL_DEVICE_BUILT_IN_KERNELS>();
+    std::cout << " || REFERENCE_COUNT: " << dev.getInfo<CL_DEVICE_REFERENCE_COUNT>();
+    //std::cout << " || LINKER_AVAILABLE: " << (dev.getInfo<CL_DEVICE_LINKER_AVAILABLE>() ? "YES" : "NO");
+    //std::cout << " || PRINTF_BUFFER_SIZE: " << dev.getInfo<CL_DEVICE_PRINTF_BUFFER_SIZE>();
     
     std::cout << "\n= EXTENSIONS =\n" << dev.getInfo<CL_DEVICE_EXTENSIONS>();
     
     std::cout << "\n= NATIVE_VECTOR_WIDTH =\nCHAR: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR>();
-    std::cout << " | SHORT: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT>();
-    std::cout << " | INT: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_INT>();
-    std::cout << " | LONG: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG>();
-    std::cout << " | FLOAT: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT>();
-    std::cout << " | DOUBLE: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE>();
-    std::cout << " | HALF: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF>();
+    std::cout << " || SHORT: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT>();
+    std::cout << " || INT: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_INT>();
+    std::cout << " || LONG: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG>();
+    std::cout << " || FLOAT: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT>();
+    std::cout << " || DOUBLE: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE>();
+    std::cout << " || HALF: " << dev.getInfo<CL_DEVICE_NATIVE_VECTOR_WIDTH_HALF>();
     
     std::cout << "\n= REFERRED_VECTOR_WIDTH =\nCHAR: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR>();
-    std::cout << " | SHORT: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT>();
-    std::cout << " | INT: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT>();
-    std::cout << " | LONG: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG>();
-    std::cout << " | FLOAT: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT>();
-    std::cout << " | DOUBLE: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE>();
-    std::cout << " | HALF: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF>();
+    std::cout << " || SHORT: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT>();
+    std::cout << " || INT: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT>();
+    std::cout << " || LONG: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG>();
+    std::cout << " || FLOAT: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT>();
+    std::cout << " || DOUBLE: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE>();
+    std::cout << " || HALF: " << dev.getInfo<CL_DEVICE_PREFERRED_VECTOR_WIDTH_HALF>();
     
     std::cout << "\nPREFERRED_INTEROP_USER_SYNC: " << dev.getInfo<CL_DEVICE_PREFERRED_INTEROP_USER_SYNC>();
     
     std::cout << "\n= MAX_WORK =\nITEM_DIMENSIONS: " << dev.getInfo<CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>();
-    std::cout << " | GROUP_SIZE: " << dev.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
-    std::cout << " | ITEM_SIZES: ";
+    std::cout << " || GROUP_SIZE: " << dev.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
+    std::cout << " || ITEM_SIZES: ";
     auto sizes = dev.getInfo<CL_DEVICE_MAX_WORK_ITEM_SIZES>();
     for(auto s : sizes)
     {
@@ -207,25 +174,25 @@ void printCL_DeviceInfo(const cl::Device& dev)
     }
     
     std::cout << "\n= MAX =\nCOMPUTE_UNITS: " << dev.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>();
-    std::cout << " | CLOCK_FREQUENCY: " << dev.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>();
-    std::cout << " | READ_IMAGE_ARGS: " << dev.getInfo<CL_DEVICE_MAX_READ_IMAGE_ARGS>();
-    std::cout << " | WRITE_IMAGE_ARGS: " << dev.getInfo<CL_DEVICE_MAX_WRITE_IMAGE_ARGS>();
-    std::cout << " | MEM_ALLOC_SIZE: " << dev.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>();
-    std::cout << " | PARAMETER_SIZE: " << dev.getInfo<CL_DEVICE_MAX_PARAMETER_SIZE>();
-    std::cout << " | SAMPLERS: " << dev.getInfo<CL_DEVICE_MAX_SAMPLERS>();
-    std::cout << " | CONSTANT_ARGS: " << dev.getInfo<CL_DEVICE_MAX_CONSTANT_ARGS>();
+    std::cout << " || CLOCK_FREQUENCY: " << dev.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>();
+    std::cout << " || READ_IMAGE_ARGS: " << dev.getInfo<CL_DEVICE_MAX_READ_IMAGE_ARGS>();
+    std::cout << " || WRITE_IMAGE_ARGS: " << dev.getInfo<CL_DEVICE_MAX_WRITE_IMAGE_ARGS>();
+    std::cout << " || MEM_ALLOC_SIZE: " << dev.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>();
+    std::cout << " || PARAMETER_SIZE: " << dev.getInfo<CL_DEVICE_MAX_PARAMETER_SIZE>();
+    std::cout << " || SAMPLERS: " << dev.getInfo<CL_DEVICE_MAX_SAMPLERS>();
+    std::cout << " || CONSTANT_ARGS: " << dev.getInfo<CL_DEVICE_MAX_CONSTANT_ARGS>();
     
     
     std::cout << "\n= IMAGE =\nSUPPORT: " << (dev.getInfo<CL_DEVICE_IMAGE_SUPPORT>() ? "YES" : "NO");
-    //std::cout << " | MAX_BUFFER_SIZE: " << dev.getInfo<CL_DEVICE_IMAGE_MAX_BUFFER_SIZE>();
-    //std::cout << " | MAX_ARRAY_SIZE: " << dev.getInfo<CL_DEVICE_IMAGE_MAX_ARRAY_SIZE>();
-    //std::cout << " | PITCH_ALIGNMENT: " << dev.getInfo<CL_DEVICE_IMAGE_PITCH_ALIGNMENT>();
-    //std::cout << " | BASE_ADDRESS_ALIGNMENT: " << dev.getInfo<CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT>();
-    std::cout << " | 2D_MAX_WIDTH: " << dev.getInfo<CL_DEVICE_IMAGE2D_MAX_WIDTH>();
-    std::cout << " | 2D_MAX_HEIGHT: " << dev.getInfo<CL_DEVICE_IMAGE2D_MAX_HEIGHT>();
-    std::cout << " | 3D_MAX_WIDTH: " << dev.getInfo<CL_DEVICE_IMAGE3D_MAX_WIDTH>();
-    std::cout << " | 3D_MAX_HEIGHT: " << dev.getInfo<CL_DEVICE_IMAGE3D_MAX_HEIGHT>();
-    std::cout << " | 3D_MAX_DEPTH: " << dev.getInfo<CL_DEVICE_IMAGE3D_MAX_DEPTH>();
+    //std::cout << " || MAX_BUFFER_SIZE: " << dev.getInfo<CL_DEVICE_IMAGE_MAX_BUFFER_SIZE>();
+    //std::cout << " || MAX_ARRAY_SIZE: " << dev.getInfo<CL_DEVICE_IMAGE_MAX_ARRAY_SIZE>();
+    //std::cout << " || PITCH_ALIGNMENT: " << dev.getInfo<CL_DEVICE_IMAGE_PITCH_ALIGNMENT>();
+    //std::cout << " || BASE_ADDRESS_ALIGNMENT: " << dev.getInfo<CL_DEVICE_IMAGE_BASE_ADDRESS_ALIGNMENT>();
+    std::cout << " || 2D_MAX_WIDTH: " << dev.getInfo<CL_DEVICE_IMAGE2D_MAX_WIDTH>();
+    std::cout << " || 2D_MAX_HEIGHT: " << dev.getInfo<CL_DEVICE_IMAGE2D_MAX_HEIGHT>();
+    std::cout << " || 3D_MAX_WIDTH: " << dev.getInfo<CL_DEVICE_IMAGE3D_MAX_WIDTH>();
+    std::cout << " || 3D_MAX_HEIGHT: " << dev.getInfo<CL_DEVICE_IMAGE3D_MAX_HEIGHT>();
+    std::cout << " || 3D_MAX_DEPTH: " << dev.getInfo<CL_DEVICE_IMAGE3D_MAX_DEPTH>();
     
     std::cout << "\n= LOCAL_MEM =\nTYPE: ";
     switch(dev.getInfo<CL_DEVICE_LOCAL_MEM_TYPE>())
@@ -237,7 +204,7 @@ void printCL_DeviceInfo(const cl::Device& dev)
             std::cout << "GLOBAL";
             break;
     }
-    std::cout << " | SIZE: " << dev.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();
+    std::cout << " || SIZE: " << dev.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>();
     
     std::cout << "\n= GLOBAL_MEM =\nCACHE_TYPE: ";
     switch(dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHE_TYPE>())
@@ -252,104 +219,126 @@ void printCL_DeviceInfo(const cl::Device& dev)
             std::cout << "READ_WRITE_CACHE";
             break;
     }
-    std::cout << " | CACHELINE_SIZE: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
-    std::cout << " | CACHE_SIZE: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHE_SIZE>();
-    std::cout << " | SIZE: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();
+    std::cout << " || CACHELINE_SIZE: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>();
+    std::cout << " || CACHE_SIZE: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHE_SIZE>();
+    std::cout << " || SIZE: " << dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>();
     
     
     std::cout << "\n= FP_CONFIG =\nSINGLE: ";
-    switch(dev.getInfo<CL_DEVICE_SINGLE_FP_CONFIG>())
-    {
-        case CL_FP_DENORM:
-            std::cout << "DENORM";
-            break;
-        case CL_FP_INF_NAN:
-            std::cout << "INF_NAN";
-            break;
-        case CL_FP_ROUND_TO_NEAREST:
-            std::cout << "ROUND_TO_NEAREST";
-            break;
-        case CL_FP_ROUND_TO_ZERO:
-            std::cout << "ROUND_TO_ZERO";
-            break;
-        case CL_FP_ROUND_TO_INF:
-            std::cout << "ROUND_TO_INF";
-            break;
-        case CL_FP_FMA:
-            std::cout << "FMA";
-            break;
-    }
-    std::cout << " | DOUBLE: ";
-    switch(dev.getInfo<CL_DEVICE_DOUBLE_FP_CONFIG>())
-    {
-        case CL_FP_DENORM:
-            std::cout << "DENORM";
-            break;
-        case CL_FP_INF_NAN:
-            std::cout << "INF_NAN";
-            break;
-        case CL_FP_ROUND_TO_NEAREST:
-            std::cout << "ROUND_TO_NEAREST";
-            break;
-        case CL_FP_ROUND_TO_ZERO:
-            std::cout << "ROUND_TO_ZERO";
-            break;
-        case CL_FP_ROUND_TO_INF:
-            std::cout << "ROUND_TO_INF";
-            break;
-        case CL_FP_FMA:
-            std::cout << "FMA";
-            break;
-    }
+	auto single_fp = dev.getInfo<CL_DEVICE_SINGLE_FP_CONFIG>();
+	if (single_fp & CL_FP_DENORM) std::cout << "DENORM" << "|";
+	if (single_fp & CL_FP_INF_NAN) std::cout << "INF_NAN" << "|";
+	if (single_fp & CL_FP_ROUND_TO_NEAREST) std::cout << "ROUND_TO_NEAREST" << "|";
+	if (single_fp & CL_FP_ROUND_TO_ZERO) std::cout << "ROUND_TO_ZERO" << "|";
+	if (single_fp & CL_FP_ROUND_TO_INF) std::cout << "ROUND_TO_INF" << "|";
+	if (single_fp & CL_FP_FMA) std::cout << "FMA" << "|";
+	if (single_fp & CL_FP_SOFT_FLOAT) std::cout << "SOFT_FLOAT" << "|";
+	if (single_fp & CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT) std::cout << "CORRECTLY_ROUNDED_DIVIDE_SQRT" << "|";
+    std::cout << "\nDOUBLE: ";
+	auto double_fp = dev.getInfo<CL_DEVICE_DOUBLE_FP_CONFIG>();
+	if (double_fp & CL_FP_DENORM) std::cout << "DENORM" << "|";
+	if (double_fp & CL_FP_INF_NAN) std::cout << "INF_NAN" << "|";
+	if (double_fp & CL_FP_ROUND_TO_NEAREST) std::cout << "ROUND_TO_NEAREST" << "|";
+	if (double_fp & CL_FP_ROUND_TO_ZERO) std::cout << "ROUND_TO_ZERO" << "|";
+	if (double_fp & CL_FP_ROUND_TO_INF) std::cout << "ROUND_TO_INF" << "|";
+	if (double_fp & CL_FP_FMA) std::cout << "FMA" << "|";
+	if (double_fp & CL_FP_SOFT_FLOAT) std::cout << "SOFT_FLOAT" << "|";
+	if (double_fp & CL_FP_CORRECTLY_ROUNDED_DIVIDE_SQRT) std::cout << "CORRECTLY_ROUNDED_DIVIDE_SQRT" << "|";
     
-    std::cout << "\n= PARTITION =\nAFFINITY_DOMAIN: ";
-    switch(dev.getInfo<CL_DEVICE_PARTITION_AFFINITY_DOMAIN>())
-    {
-        case CL_DEVICE_AFFINITY_DOMAIN_NUMA:
-            std::cout << "NUMA";
-            break;
-        case CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE:
-            std::cout << "L4_CACHE";
-            break;
-        case CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE:
-            std::cout << "L3_CACHE";
-            break;
-        case CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE:
-            std::cout << "L2_CACHE";
-            break;
-        case CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE:
-            std::cout << "L1_CACHE";
-            break;
-        case CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE:
-            std::cout << "NEXT_PARTITIONABLE";
-            break;
-    }
-    //std::cout << " | MAX_SUB_DEVICES: " << dev.getInfo<CL_DEVICE_PARTITION_MAX_SUB_DEVICES>();
-    std::cout << " | PROPERTIES: ";
-    auto partition_properties = dev.getInfo<CL_DEVICE_PARTITION_PROPERTIES>();
-    for(auto pp : partition_properties)
-    {
-        switch(pp)
-        {
-            case CL_DEVICE_PARTITION_EQUALLY:
-                std::cout << "EQUALLY";
-                break;
-            case CL_DEVICE_PARTITION_BY_COUNTS:
-                std::cout << "BY_COUNTS";
-                break;
-            case CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN:
-                std::cout << "BY_AFFINITY_DOMAIN";
-                break;
-        }
-        std::cout << ", ";
-    }
-    std::cout << " | TYPE: ";
-    auto partition_type = dev.getInfo<CL_DEVICE_PARTITION_TYPE>();
-    for(auto pt : partition_type)
-    {
-        std::cout << pt << ", ";
-    }
+	auto partition_affinity_domain = dev.getInfo<CL_DEVICE_PARTITION_AFFINITY_DOMAIN>();
+	if (partition_affinity_domain)
+	{
+		std::cout << "\n= PARTITION =\nAFFINITY_DOMAIN: ";
+		switch (partition_affinity_domain)
+		{
+		case CL_DEVICE_AFFINITY_DOMAIN_NUMA:
+			std::cout << "NUMA";
+			break;
+		case CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE:
+			std::cout << "L4_CACHE";
+			break;
+		case CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE:
+			std::cout << "L3_CACHE";
+			break;
+		case CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE:
+			std::cout << "L2_CACHE";
+			break;
+		case CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE:
+			std::cout << "L1_CACHE";
+			break;
+		case CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE:
+			std::cout << "NEXT_PARTITIONABLE";
+			break;
+		}
+		//std::cout << " || MAX_SUB_DEVICES: " << dev.getInfo<CL_DEVICE_PARTITION_MAX_SUB_DEVICES>();
+		std::cout << " || PROPERTIES: ";
+		auto partition_properties = dev.getInfo<CL_DEVICE_PARTITION_PROPERTIES>();
+		for (auto pp : partition_properties)
+		{
+			switch (pp)
+			{
+			case CL_DEVICE_PARTITION_EQUALLY:
+				std::cout << "EQUALLY";
+				break;
+			case CL_DEVICE_PARTITION_BY_COUNTS:
+				std::cout << "BY_COUNTS";
+				break;
+			case CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN:
+				std::cout << "BY_AFFINITY_DOMAIN";
+				break;
+			}
+			std::cout << ", ";
+		}
+		std::cout << " || TYPE: ";
+		auto partition_type = dev.getInfo<CL_DEVICE_PARTITION_TYPE>();
+		for (auto pt : partition_type)
+		{
+			std::cout << pt << ", ";
+		}
+	}
     std::cout << "\n+++++++++++++++++++++++++++++++++++++\n";
+}
+
+void printCL_Devices(const cl::Platform& platform)
+{
+	std::vector<cl::Device> devices;
+	platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
+	for (auto d : devices)
+		printCL_DeviceInfo(d);
+	std::cout << std::endl;
+}
+
+cl::Platform getCL_Platform()
+{
+	std::vector<cl::Platform> platforms;
+	cl::Platform::get(&platforms);
+	size_t cur_platform = platforms.size();
+
+	if (!cur_platform)
+	{
+		throw std::domain_error("OpenCL platforms aren't found.");
+	}
+
+	for (size_t p = 0; p < platforms.size(); ++p)
+	{
+		printCL_PlatformInfo(platforms.at(p));
+		std::string ver;
+		if (platforms.at(p).getInfo(CL_PLATFORM_VERSION, &ver) == CL_SUCCESS)
+		{
+			if (getCL_ver(ver) == v120)
+			{
+				cur_platform = p;
+				printCL_Devices(platforms.at(p));
+			}
+		}
+	}
+
+	if (cur_platform == platforms.size())
+	{
+		throw std::domain_error("OpenCL 1.2 platform is not found.");
+	}
+
+	return std::move(platforms.at(cur_platform));
 }
 
 cl::Device getCL_Device()
@@ -362,13 +351,12 @@ cl::Device getCL_Device()
 	size_t cur_device = devices.size();
 
     for (size_t d = 0; d < devices.size(); ++d) {
-        printCL_DeviceInfo(devices.at(d));
 		if (!devices[d].getInfo<CL_DEVICE_AVAILABLE>()) continue;
 
 		std::string ext = devices[d].getInfo<CL_DEVICE_EXTENSIONS>();
 
 		// Get first available GPU device which supports double precision
-		if (ext.find("cl_khr_fp64") == std::string::npos || ext.find("cl_amd_fp64") == std::string::npos)
+		if (cur_device == devices.size() && (ext.find("cl_khr_fp64") == std::string::npos || ext.find("cl_amd_fp64") == std::string::npos))
 		{
 			cur_device = d;
 			break;
