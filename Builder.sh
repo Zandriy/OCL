@@ -2,8 +2,28 @@
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     generator="Xcode"
+elif [[ "$OSTYPE" == "linux"* ]]; then
+    generator="CodeBlocks - Unix Makefiles"
 else
-    generator="Visual Studio 12 2013 Win64"
+    echo "Input Visual Studio version (2012, 2013, 2015 or 2017)"
+    read vs_ver
+    case $vs_ver in
+       2012)
+          generator="Visual Studio 11 2012 Win64"
+          ;;
+       2013)
+          generator="Visual Studio 12 2013 Win64"
+          ;;
+       2015)
+          generator="Visual Studio 14 2015 Win64"
+          ;;
+       2017)
+          generator="Visual Studio 15 2017 Win64"
+          ;;
+       *)
+          echo "Input correct version"
+          exit 1
+    esac
 fi
 
 args="$1"
